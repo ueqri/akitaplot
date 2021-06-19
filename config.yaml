@@ -1,0 +1,32 @@
+benchmarks:
+  fir:
+    displayName: "fir"
+    path: "samples/fir"
+    options: "-timing -length=10"
+  # floydwarshall:
+  #   displayName: "floydwarshall"
+  #   path: "samples/floydwarshall"
+  #   options: "-timing -node=20"
+  memcopy:
+    displayName: "memcopy"
+    path: "samples/memcopy"
+    options: "-timing -parallel"
+
+config:
+  grabs: 
+    # kernelTime:
+    #   where: "driver"
+    #   what:  "kernel_time"
+    totalTime:
+      where: "driver"
+      what:  "total_time"
+  baseline:
+    displayName: "Baseline"
+    pathPrefix: "~/repo/akita/mgpusim////"
+  optimizations:
+    wafer-gpus:
+      displayName: "GPUs-level"
+      pathPrefix: "~/repo/akita/mgpusim/"
+    wafer-cus:
+      displayName: "CUs-level"
+      pathPrefix: "~/repo/akita/akkalat-demo-0//"
