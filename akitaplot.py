@@ -363,6 +363,6 @@ class speedup(workflow):
     return speedup_plot(plot_name, table, figure_size=(10, 2))
 
 
-if __name__ == '__main__':
-  s = speedup('./config.yaml')
-  s.dump_tables()
+# if __name__ == '__main__':
+#   s = speedup('./config.yaml')
+#   s.dump_tables()

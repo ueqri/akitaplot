@@ -1,35 +1,51 @@
 benchmarks:
   fir:
+    # Name to display in plot or dumped tables.
     displayName: "FIR"
+    # Path of benchmarks that all models share as the last common substring.
+    # e.g. A:fir -> /path/to/a/samples/fir
+    #      B:fir -> /path/to/b/samples/fir
+    # then, the shared path string is "samples/fir"
     path: "samples/fir"
-    options: "-timing -length=10"
-  # floydwarshall:
-  #   displayName: "floydwarshall"
-  #   path: "samples/floydwarshall"
-  #   options: "-timing -node=20"
+    options: "-timing -length=100000"
+  
+  floydwarshall:
+    displayName: "FLW"
+    path: "samples/floydwarshall"
+    options: "-timing -node=20"
+  
   memcopy:
     displayName: "MM"
     path: "samples/memcopy"
     options: "-timing -parallel"
 
+  # You could append more benchmarks based on the same YAML scheme.
+
 config:
-  grabs: 
-    # kernelTime:
-    #   where: "driver"
-    #   what:  "kernel_time"
+  grabs: # Set the metrics you would like to collect.
+    kernelTime:
+      where: "driver"
+      what:  "kernel_time"
     totalTime:
       where: "driver"
       what:  "total_time"
-    # totalTime2:
-    #   where: "driver"
-    #   what:  "total_time"
-  baseline:
+    l2_01ReadHit:
+      where: "GPU1.L2_0"
+      what:  "read-hit"
+  
+  baseline: # Set the baseline for comparing.
     displayName: "Baseline"
-    pathPrefix: "~/repo/akita/mgpusim////"
-  optimizations:
-    wafer-gpus:
-      displayName: "GPUs-level"
-      pathPrefix: "~/repo/akita/mgpusim/"
-    wafer-cus:
-      displayName: "CUs-level"
-      pathPrefix: "~/repo/akita/akkalat-demo-0//"
+    pathPrefix: "/path/to/akita/mgpusim"
+  
+  optimizations: # Set the arrays of optimizations.
+    multi-gpus:
+      # Name to display in plots or dumped tables.
+      displayName: "Multi-GPUs"
+      # Path prefix is used to locate the exact path of workload by combining
+      # the `pathPrefix` with the `path` in benchmarks config.
+      # PS: you don't need to concern the slash at the end of pathPrefix,
+      # since we deal with all cases to ensure the combination works well.
+      pathPrefix: "/path/to/multigpus"
+    valkyrie:
+      displayName: "Valkyrie"
+      pathPrefix: "/path/to/valkyrie"
