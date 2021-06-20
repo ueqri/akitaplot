@@ -1,6 +1,6 @@
 benchmarks:
   fir:
-    displayName: "fir"
+    displayName: "FIR"
     path: "samples/fir"
     options: "-timing -length=10"
   # floydwarshall:
@@ -8,7 +8,7 @@ benchmarks:
   #   path: "samples/floydwarshall"
   #   options: "-timing -node=20"
   memcopy:
-    displayName: "memcopy"
+    displayName: "MM"
     path: "samples/memcopy"
     options: "-timing -parallel"
 
@@ -20,6 +20,9 @@ config:
     totalTime:
       where: "driver"
       what:  "total_time"
+    # totalTime2:
+    #   where: "driver"
+    #   what:  "total_time"
   baseline:
     displayName: "Baseline"
     pathPrefix: "~/repo/akita/mgpusim////"
