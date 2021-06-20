@@ -327,7 +327,7 @@ class workflow:
     return p
 
 
-class speedup_table(table):
+class speedup_table_base(table):
   def manipulation(self):
     self.downstream = self.origin.copy()
 
@@ -349,18 +349,18 @@ class speedup_table(table):
   def benchmarks_order(self):
     return self.default_benchmarks_order()
 
-class speedup_plot(plot):
+class speedup_plot_base(plot):
   font_scale = 2.0
   def decorate(self):
     pass
 
 
-class speedup(workflow):
+class speedup_base(workflow):
   def transform_table(self, table_name, dfs_for_table):
-    return speedup_table(table_name, dfs_for_table)
+    return speedup_table_base(table_name, dfs_for_table)
   
   def transform_plot(self, plot_name, table):
-    return speedup_plot(plot_name, table, figure_size=(10, 2))
+    return speedup_plot_base(plot_name, table, figure_size=(10, 2))
 
 
 # if __name__ == '__main__':
