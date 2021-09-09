@@ -1,4 +1,5 @@
-import yaml
+import yaml, csv
+import string
 import os, sys, platform
 import colorama
 import pandas as pd
@@ -22,6 +23,19 @@ def get_expanded_abspath(path):
 def print_green_prompt(msg):
   print(colorama.Fore.GREEN + colorama.Style.BRIGHT + msg + 
         colorama.Style.RESET_ALL)
+
+def check_csv_valid(path):
+  try:
+    with open(path, newline='') as f:
+      content = f.read()
+      # isprintable does not allow newlines, printable does not allow umlauts.
+      if not all([c in string.printable or c.isprintable() for c in content]):
+        return False
+      dialect = csv.Sniffer().sniff(content)
+      return True
+  except csv.Error:
+    # could not get a csv dialect -> probably not a csv.
+    return False
 
 # Load config YAML and organize models and benchmarks lists
 class config:
@@ -86,8 +100,8 @@ class config:
       self.benchmarks.append({
         'name': name,
         'displayName': conf['displayName'],
-        'path': conf['path'],
-        'options': conf['options']
+        'path': conf['buildInplace']['path'],
+        'options': conf['buildInplace']['options']
       })
     # print(self.benchmarks)
   
@@ -142,6 +156,9 @@ class runner:
   def metrics_csv(self):
     return self.metrics_csv_abspath
   
+  def __str__(self):
+    return str(self.metrics_csv())
+  
   # Override it if needed, setting the runner command for each workload
   def runner_command(self, exe_name, options):
     os_name = platform.system()
@@ -149,6 +166,19 @@ class runner:
       return "go build && ./" + exe_name + ' ' + options
     elif os_name == 'Windows':
       return "go build && " + exe_name + '.exe ' + options
+
+
+class metrics:
+  def __init__(self, path):
+    check_path_exists(path, "Please provide the right metrics path!")
+    if not check_csv_valid(path):
+      print(str(path) + "is not a valid csv file! Please provide the right " +
+      "csv format file for class metrics.")
+      sys.exit(0)
+    self.path = path
+    
+  def __str__(self):
+    return str(self.path)
 
 
 # Append benchmark and build each model column for table
@@ -288,6 +318,42 @@ class plot:
 
 
 class workflow:
+  def __init__(self, grab, models):
+    self.models = models
+    self.table = self.__generate_table(grab)
+    self.grab_plot = self.__generate_plot(grab['name'], self.table)
+
+  def __generate_table(self, grab):
+    model_dateframes = []
+    for each_model in self.models:
+      m = model(each_model['displayName'], grab['where'], grab['what'])
+      for b_name, csv_path in each_model['benchmarks']:
+        m.append_benchmark(b_name, str(csv_path))
+
+      model_dateframes.append(m.df)
+      print(m.df)
+    return self.transform_table(grab['name'], model_dateframes)
+  
+  def __generate_plot(self, plot_name, table):
+    return self.transform_plot(plot_name, table)
+
+  def dump_tables(self):
+    for (t, g) in zip(self.grab_tables, self.conf.grabs):
+      t.dump_origin_to_csv(g['name'] + '_origin.csv')
+      t.dump_downstream_to_csv(g['name'] + '_downstream.csv')
+  
+  # Override it if needed, based on the derivative class of table
+  def transform_table(self, table_name, model_dateframes):
+    return table(table_name, model_dateframes)
+  
+  # Override it if needed, based on the derivative class of plot
+  def transform_plot(self, plot_name, table):
+    p = plot(plot_name, table)
+    p.preview()
+    return p
+
+
+class config_workflow:
   def __init__(self, config_path):
     self.conf = config(config_path)
     self.grab_tables = [self.__generate_table(g) for g in self.conf.grabs]
@@ -349,6 +415,7 @@ class speedup_table_base(table):
   def benchmarks_order(self):
     return self.default_benchmarks_order()
 
+
 class speedup_plot_base(plot):
   font_scale = 2.0
   def decorate(self):
@@ -356,6 +423,14 @@ class speedup_plot_base(plot):
 
 
 class speedup_base(workflow):
+  def transform_table(self, table_name, dfs_for_table):
+    return speedup_table_base(table_name, dfs_for_table)
+  
+  def transform_plot(self, plot_name, table):
+    return speedup_plot_base(plot_name, table, figure_size=(10, 2))
+
+
+class config_speedup_base(config_workflow):
   def transform_table(self, table_name, dfs_for_table):
     return speedup_table_base(table_name, dfs_for_table)
   

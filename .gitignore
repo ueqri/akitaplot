@@ -1,3 +1,7 @@
 *.csv
 *.pdf
 *.png
+
+test
+
+__pycache__

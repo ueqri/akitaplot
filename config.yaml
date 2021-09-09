@@ -6,18 +6,20 @@ benchmarks:
     # e.g. A:fir -> /path/to/a/samples/fir
     #      B:fir -> /path/to/b/samples/fir
     # then, the shared path string is "samples/fir"
-    path: "samples/fir"
-    options: "-timing -length=100000"
+    buildInplace:
+      path: "samples/fir"
+      options: "-timing -length=100000"
   
   floydwarshall:
     displayName: "FLW"
-    path: "samples/floydwarshall"
-    options: "-timing -node=20"
+    # Unimplemented features yet.
+    existedCSV: ".collect/fir_metrics.csv"
   
   memcopy:
     displayName: "MM"
-    path: "samples/memcopy"
-    options: "-timing -parallel"
+    buildInplace:
+      path: "samples/memcopy"
+      options: "-timing -parallel"
 
   # You could append more benchmarks based on the same YAML scheme.
 
