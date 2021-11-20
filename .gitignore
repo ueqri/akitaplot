@@ -1,6 +1,7 @@
 *.csv
 *.pdf
 *.png
+!example_kernelTime.png
 
 test
 
